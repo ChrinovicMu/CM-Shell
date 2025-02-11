@@ -18,8 +18,7 @@ clean:
 	rm -f $(TARGET)
 
 test: build
-	valgrind --leak-check-full --track-origins=yes =show-leak-kinds=all --verbose ./main 
-
+	valgrind --leak-check=full --track-origins=yes --show-leak-kinds=all --verbose ./main
 .PHONY: git-push 
 git-push:
 	@git add .
