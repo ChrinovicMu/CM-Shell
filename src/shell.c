@@ -3,16 +3,22 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <ctype.h>
 #include "shell_builtins.h"
 
 #define READ_LINE_BUFFSIZE 1024
 #define TOK_BUFFSIZE 64
-#define TOK_DELIM "\t\r\n\a"
+#define TOK_DELIM " \t\r\n\a"
 
 char *read_line(void){
     int buffsize = READ_LINE_BUFFSIZE;
     int positon = 0;
     char *buffer = malloc(sizeof(char) * buffsize);
+
+    if(!buffer){
+        fprintf(stderr, "buffer allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
     int c;
 
     while(1){
@@ -53,18 +59,33 @@ char **split_line(char *line){
         exit(EXIT_FAILURE);
     }
 
+    while(isspace((unsigned char)*line)){
+        line++;
+    }
+    char *end = line +strlen(line) - 1;
+    while(end > line && isspace((unsigned char)*end)){
+        end--;
+    }
+    end[1] = '\0';
+
     token = strtok(line, TOK_DELIM);
 
     while(token != NULL){
-        tok_len = strlen(token);
-        token_cpy = malloc((tok_len +1) * sizeof(char));
-        strcpy(token_cpy, token);
+        
+        token_cpy = strdup(token);
+        if(!token_cpy){
+            fprintf(stderr, "token token_cpy allocation failed\n");
+            exit(EXIT_FAILURE);
+        }
 
         tokens[positon] = token_cpy;
+        printf("toekn %d : %s\n", positon, token_cpy);
         positon++;
 
         if(positon >= buffsize){
-            tokens = realloc(tokens, buffsize);
+
+            buffsize += TOK_BUFFSIZE;
+            tokens = realloc(tokens, buffsize * sizeof(char*));
 
             if(!tokens){
                 fprintf(stderr, "token buffer reallocation failed\n");
@@ -94,6 +115,10 @@ int launch_shell(char **args){
     }else{
         do{
             wpid = waitpid(pid, &status, WUNTRACED); 
+            if(wpid == -1){
+                perror("waitpid");
+                return 1;
+            }
         }while(!WIFEXITED(status) && !WIFSIGNALED(status));
     }
     return 1;
@@ -107,9 +132,11 @@ int execute_shell(char **args){
     }
     for(x = 0; x < builtin_num(); ++x){
         if(strcmp(args[0], builtin_str[x]) == 0){
+            printf("CALLING BUILTIN FUNCTION %s\n", builtin_str[x]);
             return(*builtin_func[x])(args);
         }
     }
+    return launch_shell(args);
 }
 void free_args(char **args){
     char **iter = args; 

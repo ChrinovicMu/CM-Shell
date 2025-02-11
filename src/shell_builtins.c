@@ -22,10 +22,12 @@ int shell_help(char **args){
 
 int shell_cd(char **args){
 
+
     if(!args || !args[1]){
         fprintf(stderr, "usage : cd <dir_name>\n");
         return 1;
     }
+    printf("ATTEMPTING TO ENTER THE DIRECTORY %s\n", args[1]);
     if(chdir(args[1]) != 0){
         perror("cd");
         return 1;
@@ -38,9 +40,25 @@ int shell_create_dir(char **args){
         fprintf(stderr, "usage : crdir <dir_name>\n");
         return 1;
     }
+    
+    if(access(args[1], F_OK) == 0){
+        fprintf(stderr, "directiry alredy exist\n");
+        return 1;
+    }
+
+    char *path = args[1]; 
+    char *p = path;
+    while(*p){
+        if(*p == '/'){
+            *p = '\0';
+            mkdir(path, 0755);
+            *p = '/';
+        }
+        p++;
+    }
 
     int dr = mkdir(args[1], 0755);
-    if(dr == -1){
+    if(dr == -1 && errno != EEXIST){
         perror("Error creating directory");
         return -1;
     }

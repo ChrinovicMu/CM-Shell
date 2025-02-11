@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 int shell_help(char **args);
 int shell_cd(char **args);
