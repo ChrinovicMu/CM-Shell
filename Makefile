@@ -16,3 +16,14 @@ run: build
 
 clean:
 	rm -f $(TARGET)
+
+test: build
+	valgrind --leak-check-full --track-origins=yes =show-leak-kinds=all --verbose ./main 
+
+.PHONY: git-push 
+git-push:
+	@git add .
+	@read -p "commit msg : " msg; \
+	git commit -m "$$msg"; \
+	git push origin main 
+
