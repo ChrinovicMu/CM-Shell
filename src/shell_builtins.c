@@ -4,7 +4,7 @@ int (*builtin_func[])(char **) = {&shell_help, &shell_cd, &shell_create_dir,  &s
 
 char *builtin_str[] = {"help", "cd", "crdir", "exit"};
 
-int builtin_num(){
+ int builtin_num(){
     return sizeof(builtin_str) / sizeof(char*); 
 }
 
