@@ -130,10 +130,6 @@ CM_shell > exit
 4. Push to the branch
 5. Create a pull request
 
-## License
-
-[Specify your license here, e.g., MIT, GPL]
-
 ## Author
 
 Chrinovic
